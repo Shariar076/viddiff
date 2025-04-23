@@ -305,7 +305,7 @@ def run_lmm(
         else:
             predictions = [r for r in res[0]]
 
-    elif "Qwen2-VL-7B-Instruct" in args_lmm.model:
+    elif "Qwen/" in args_lmm.model:
         from apis import qwen_api
 
         if args_lmm.video_representation != "video":
@@ -399,7 +399,7 @@ def _reformat_malformed_json_prediction(malformed_outputs, skip=False, cache=Tru
     res = openai_api.call_gpt_batch(
         prompts,
         seeds=seeds,
-        model="gpt-4o-mini",
+        model="Qwen",
         max_tokens=4000,
         cache_dir=cache_reformat,
         cache=cache,

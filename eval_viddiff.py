@@ -237,7 +237,7 @@ def do_matching(dataset, predictions_unmatched, seed):
 
     res = openai_api.call_gpt_batch(
         batch_prompts_text,
-        model="gpt-4o-2024-08-06",
+        model="Qwen",
         response_format=MatchingResponser,
         json_mode=False,
         cache_dir=cache_match,
@@ -355,7 +355,7 @@ def test_reverse_statements(predictions, seed, batch_size):
     seeds = [seed + TEST_SEED for _ in range(len(batch_prompts_text))]
     logging.info("GPT call: checking 'is_opposite'")
     res = openai_api.call_gpt_batch(
-        batch_prompts_text, seeds=seeds, cache_dir=cache_match, model="gpt-4o-mini"
+        batch_prompts_text, seeds=seeds, cache_dir=cache_match, model="Qwen"
     )
     cost = sum([r[1] for r in res])
     logging.info(f"Cost for eval on 'is_opposite' statement: ${cost:.4f}")

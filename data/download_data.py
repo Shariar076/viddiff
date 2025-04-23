@@ -11,7 +11,7 @@ def download_and_extract_videos(dataset_name, output_dir, domain):
     # print(f"Downloading {zip_filename} from the dataset...")
     zip_path = hf_hub_download(
         repo_id=dataset_name,
-        filename=f"data/videos_{domain}.zip",
+        filename=f"videos_{domain}.zip",
         repo_type="dataset",
         local_dir=output_dir,
     )

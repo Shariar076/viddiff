@@ -3,7 +3,7 @@ Functions for calling api
 Needs to have set OPENAI_API_KEY.
 Models: https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo
 """
-
+import re
 import ipdb
 import base64
 import asyncio
@@ -103,7 +103,7 @@ def call_gpt(
         base_url = "https://openrouter.ai/api/v1"
         api_key = os.getenv("OPENROUTER_API_KEY")
     elif "Qwen" in model:
-        base_url = "https://api.hyperbolic.xyz/v1"
+        base_url = "http://127.0.0.1:30000/v1"
         api_key = os.getenv("HYPERBOLIC_API_KEY")
 
     client = openai.OpenAI(base_url=base_url, api_key=api_key)
@@ -169,6 +169,9 @@ def call_gpt(
             msg = cache_utils.get_from_cache(cache_key, cache_dir)
         if msg is not None and not overwrite_cache:
             if is_structured or json_mode:
+                match = re.search(r'\{.*\}', msg, re.DOTALL)
+                if match:
+                    msg = match.group(0)
                 msg = json.loads(msg)
             with cache_lock:
                 HITS += 1
@@ -215,6 +218,9 @@ def call_gpt(
             cache_utils.save_to_cache(cache_key, msg, cache_dir)
 
     if json_mode or is_structured:
+        match = re.search(r'\{.*\}', msg, re.DOTALL)
+        if match:
+            msg = match.group(0)
         msg = json.loads(msg)
 
     response = dict(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)

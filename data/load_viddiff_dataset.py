@@ -20,11 +20,11 @@ def load_viddiff_dataset(
     splits in ['easy', 'medium', 'hard']
     """
     if not test_new:
-        dataset = load_dataset("viddiff/VidDiffBench_2", cache_dir=cache_dir)
+        dataset = load_dataset("jmhb/ViddiffBench", cache_dir=cache_dir)
         dataset = dataset["test"]
         valid_splits = set(dataset["split"])
     else:
-        dataset = load_dataset("viddiff/VidDiffBench_2", cache_dir=cache_dir)
+        dataset = load_dataset("jmhb/ViddiffBench", cache_dir=cache_dir)
         dataset = dataset["test"]
         dataset = dataset.map(
             lambda example: example.update({"split": example["domain"]}) or example

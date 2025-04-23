@@ -9,7 +9,7 @@ from tqdm import trange
 from threading import Lock
 from qwen_vl_utils import process_vision_info
 import cv2
-from transformers import Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor
+from transformers import Qwen2_5_VLForConditionalGeneration, Qwen2VLForConditionalGeneration, AutoTokenizer, AutoProcessor
 
 sys.path.insert(0, "..")
 sys.path.insert(0, ".")
@@ -61,13 +61,20 @@ def get_qwen_model(
     >>> model = model_dict['model']
     >>> processor = model_dict['processor']
     """
-
-    model = Qwen2VLForConditionalGeneration.from_pretrained(
-        model_name,
-        torch_dtype=torch_dtype,
-        attn_implementation="flash_attention_2",
-        device_map=device,
-    )
+    if '2.5' in model_name:
+        model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+            model_name,
+            torch_dtype=torch_dtype,
+            attn_implementation="flash_attention_2",
+            device_map=device,
+        )
+    else:
+        model = Qwen2VLForConditionalGeneration.from_pretrained(
+            model_name,
+            torch_dtype=torch_dtype,
+            attn_implementation="flash_attention_2",
+            device_map=device,
+        )
 
     processor = AutoProcessor.from_pretrained(model_name)
 
