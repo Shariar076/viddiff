@@ -43,7 +43,7 @@ class Retriever:
         self.videos0 = videos[0]
         self.videos1 = videos[1]
         self.proposals = proposals
-        self.verbose = args_logging.verbose
+        # self.verbose = args_logging.verbose
 
         self.results_subdir = Path(args_logging.results_dir) / "stage2_retriever"
         self.results_subdir.mkdir(exist_ok=True, parents=True)

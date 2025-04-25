@@ -7,10 +7,12 @@ from apis import qwen_api
 import json
 
 config= "lmms/configs/config.yaml"
-name = "qwen2vl_7b_open_easy"
+name = "qwen2vl_2b_open_easy"
+# name = "llava_video_7b_open_easy"
 split = "easy"
 eval_mode = "open"
-model= "Qwen/Qwen2-VL-7B-Instruct"
+model= "Qwen/Qwen2-VL-2B-Instruct"
+# model= "lmms-lab/LLaVA-Video-7B-Qwen2"
 subset_mode="0"
 
 args = config_utils.load_config(
@@ -54,7 +56,7 @@ metrics = eval_viddiff.eval_viddiff(
     predictions_unmatched=predictions,
     eval_mode=args.eval_mode,
     n_differences=None,
-    seed=1,
+    seed=0,
     results_dir=args.logging.results_dir,
 )
 print(metrics)

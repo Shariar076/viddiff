@@ -44,7 +44,7 @@ class Proposer:
         """ """
         # save configs
         self.args = args
-        self.verbose = self.args.verbose
+        # self.verbose = self.args.verbose
 
         # save dataset, and make sure samples are ordered
         self.dataset = dataset
@@ -155,6 +155,7 @@ class Proposer:
         """
         Query one action at a time.
         """
+        print(self.args)
         template_subactions = prompts.lookup_prompts_proposer_2_subactions[
             self.args.prompt_key_2_subactions
         ]

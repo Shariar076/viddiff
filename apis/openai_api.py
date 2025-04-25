@@ -169,9 +169,15 @@ def call_gpt(
             msg = cache_utils.get_from_cache(cache_key, cache_dir)
         if msg is not None and not overwrite_cache:
             if is_structured or json_mode:
+                print("+"*100)
+                print(msg)
+                print("+"*100)
                 match = re.search(r'\{.*\}', msg, re.DOTALL)
                 if match:
                     msg = match.group(0)
+                    print("-"*100)
+                    print(msg)
+                    print("-"*100)
                 msg = json.loads(msg)
             with cache_lock:
                 HITS += 1
