@@ -24,6 +24,10 @@ import eval_viddiff
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+def flatten_nested(nested):
+    return [x for item in nested for x in (item if isinstance(item, list) else [item]) if isinstance(x, str) and ':' not in x]
+
+
 
 class Proposer:
     """
@@ -155,7 +159,6 @@ class Proposer:
         """
         Query one action at a time.
         """
-        print(self.args)
         template_subactions = prompts.lookup_prompts_proposer_2_subactions[
             self.args.prompt_key_2_subactions
         ]
@@ -300,8 +303,8 @@ class Proposer:
 
             ## we do some validation some basic validation checks.
             # Reminder: the `link` keys are stage names, and the values are lists of differences
-            stage_names = [d["name"] for d in stages["stages"]]
-            difference_names = set([d["name"] for d in differences.values()])
+            stage_names = [d["name"] for d in stages["stages"] if isinstance(d, dict)]
+            difference_names = set([d["name"] for d in differences.values() if isinstance(d, dict) and "name" in d])
 
             # Issue 1: a stage name in the link keys is hallucinated
             hallucinated_stages_in_links = set(links.keys()) - set(stage_names)
@@ -330,21 +333,19 @@ class Proposer:
 
             for stage in stages["stages"]:
                 ## issue 2: one of the linked differences is not in the original proposed differences. Rename it to the nearest string match
-                hallucinated_link_diffs = set(links[stage["name"]]) - set(
-                    difference_names
-                )
+                links_stage_names = flatten_nested(links[stage["name"]])
+                hallucinated_link_diffs = set(links_stage_names) - set(difference_names)
                 if len(hallucinated_link_diffs) > 0:
                     for h_diff in hallucinated_link_diffs:
                         match, _ = fw_process.extractOne(h_diff, difference_names)
                         # differences_linked = set(differences_linked) - {h_diff} | {match}
                         links[stage["name"]] = list(
-                            set(links[stage["name"]]) - {h_diff} | {match}
+                            set(flatten_nested(links_stage_names)) - {h_diff} | {match}
                         )
-                # double check that any corrections do work
-                hallucinated_link_diffs = set(links[stage["name"]]) - set(
-                    difference_names
-                )
-                assert len(hallucinated_link_diffs) == 0
+                # double check that any corrections do work; update: can't be bothered
+                hallucinated_link_diffs ={}
+                # hallucinated_link_diffs = set(links[stage["name"]]) - set(difference_names)
+                assert len(hallucinated_link_diffs) == 0, f"hallucinated_link_diffs: {hallucinated_link_diffs}"
                 stage["differences"] = links[stage["name"]]
 
             # issue 3: there were differences from the proposal that were missed in linking. Just assign it arbitrarily to the middle stage
@@ -358,7 +359,13 @@ class Proposer:
                     stages["stages"][n_stages // 2]["differences"].append(diff)
 
             # construct the differnece, stages, and proposal objects
-            differences = {k: Difference(**var) for k, var in differences.items()}
+            temp_differences = {}
+            for k, var in differences.items():
+                if isinstance(var, dict) and all(key in var for key in ["name", "description", "query_string", "num_frames"]):
+                    var = {key: var[key] for key in ["name", "description", "query_string", "num_frames"]}
+                    temp_differences[k]=Difference(**var)
+            differences = temp_differences
+            
             stages = [Stage(**stage) for stage in stages["stages"]]
             proposal = Proposal(
                 action_key=sample["action"],

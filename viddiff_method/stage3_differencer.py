@@ -108,9 +108,8 @@ class Differencer:
                 prompts_difference_idxs.append(difference_idx)
 
                 # get the retrieved frames
-                frame_idxs_video0 = retrieve_frames_0[difference_idx]
-                frame_idxs_video1 = retrieve_frames_1[difference_idx]
-
+                frame_idxs_video0 = [x for x in retrieve_frames_0[difference_idx] if x < len(video0["video"])]
+                frame_idxs_video1 = [x for x in retrieve_frames_1[difference_idx]  if x < len(video1["video"])]
                 frames_0 = list(video0["video"][frame_idxs_video0])
                 frames_1 = list(video1["video"][frame_idxs_video1])
                 nframes = len(frames_0)

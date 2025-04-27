@@ -5,6 +5,7 @@ eval_mode: closed
 
 proposer: 
   eval_mode: open
+  prompt_key_1_differences: 0
   prompt_key_2_subactions: 0
   seed: 0
   n_retrieval_keys: 5
@@ -12,12 +13,31 @@ proposer:
   filter_retrieval_keys: 5
   prompt_key_3_subaction_filtering: 0
   prompt_key_4_linking: 0
+  do_eval: true
+  # drop_unmatched_diffs: false
   
-retriever: 
+retriever:
+  multiframe:
+    nframes: 11
+    frames_sep_seconds: 1 
+  seed: 0
   eval_mode: open
+  mode: 0
+  log_imgs: false
+  do_random_retrieval: false
+  model_config: 
+    model: "ViT-bigG-14"
 
-frame_differencer: 
+
+frame_differencer:
+  seed: 0
+  system_prompt_key: 0
+  prompt_key: 0
+  prompt_key_multiframe: 0
   eval_mode: open
+  model: "Qwen"
+  log_imgs: false
+  do_eval: true
 
 fps_inference: 
   fitness: 4      # original fps is 8

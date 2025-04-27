@@ -18,7 +18,7 @@ import io
 import shutil
 from typing import List, Tuple
 import lmdb
-import json
+import json5 as json
 import sys
 import logging
 import concurrent.futures
@@ -93,7 +93,7 @@ def call_gpt(
         cache key, so changing it will force the API to be called again
     """
     global HITS, MISSES
-    print(f"\rGPT cache. Hits: {HITS}. Misses: {MISSES}", end="")
+    print(f"\rGPT cache. Hits: {HITS}. Misses: {MISSES} ", end="")
     # response format
 
     if "gpt" in model:
@@ -169,16 +169,16 @@ def call_gpt(
             msg = cache_utils.get_from_cache(cache_key, cache_dir)
         if msg is not None and not overwrite_cache:
             if is_structured or json_mode:
-                print("+"*100)
-                print(msg)
-                print("+"*100)
                 match = re.search(r'\{.*\}', msg, re.DOTALL)
                 if match:
                     msg = match.group(0)
+                try:
+                    msg = json.loads(msg)
+                except Exception as ex:
                     print("-"*100)
                     print(msg)
                     print("-"*100)
-                msg = json.loads(msg)
+                    raise(ex)
             with cache_lock:
                 HITS += 1
             return msg, None
@@ -211,23 +211,35 @@ def call_gpt(
     if is_structured:
         kwargs["response_format"] = response_format_in
 
-    # call gpt
-    # response = client.chat.completions.create(**kwargs)
-    response = client.beta.chat.completions.parse(**kwargs)
-    prompt_tokens = response.usage.prompt_tokens
-    completion_tokens = response.usage.completion_tokens
-    msg = response.choices[0].message.content
+    def call_gpt(kwargs):
+        # response = client.chat.completions.create(**kwargs)
+        response = client.beta.chat.completions.parse(**kwargs)
+        prompt_tokens = response.usage.prompt_tokens
+        completion_tokens = response.usage.completion_tokens
+        msg = response.choices[0].message.content
+        return prompt_tokens, completion_tokens, msg
 
+    prompt_tokens, completion_tokens, msg = call_gpt(kwargs)
+    trial = 1
     # save to cache if enabled
     if cache:
         with cache_lock:
             cache_utils.save_to_cache(cache_key, msg, cache_dir)
 
     if json_mode or is_structured:
-        match = re.search(r'\{.*\}', msg, re.DOTALL)
-        if match:
-            msg = match.group(0)
-        msg = json.loads(msg)
+        while True:
+            match = re.search(r'\{.*\}', msg, re.DOTALL)
+            if match:
+                msg = match.group(0)
+            try:
+                msg = json.loads(msg)
+                if trial>1:
+                    print("\nSUCCESS AFTER", trial, "TRIALS\n")
+                break
+            except Exception as ex:
+                print(ex)
+                prompt_tokens, completion_tokens, msg = call_gpt(kwargs)
+                trial+=1
 
     response = dict(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
     price = compute_api_call_cost(prompt_tokens, completion_tokens, model=model)

@@ -52,21 +52,24 @@ def main(config, name, seed, split, eval_mode, test_new, subset_mode):
     logging.info(f"Running LLM proposer")
     proposer = Proposer(args.proposer, args.logging, dataset, n_differences)
     proposals = proposer.generate_proposals()
+    # print("\nTotal proposals:", proposals)
 
     logging.info(f"Running frame retrieval")
     retriever = Retriever(args.retriever, args.logging, dataset, videos, proposals)
     retrieved_frames = retriever.retrieve_frames()
+    # print("\nTotal retrieved_frames:", retrieved_frames)
 
     logging.info(f"Running VLM frame differencing")
     frame_diferencer = Differencer(args.frame_differencer, args.logging,
                                         dataset, videos, proposals,
                                         retrieved_frames)
     predictions = frame_diferencer.caption_differences()
+    # print("\nTotal predictions:", predictions)
 
     logging.info(f"Doing eval")
     results = eval_viddiff(dataset,predictions_unmatched=predictions,
                                         eval_mode=args.eval_mode,
-                                        seed=args.seed,
+                                        seed=1,#args.seed,
                                         n_differences=n_differences,
                                         results_dir=args.logging.results_dir,
                                         diffs_already_matched=True,

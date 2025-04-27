@@ -87,9 +87,12 @@ class Proposal(DictLikeClass):
         # make dictionary from difference idx -> ALL the stages where it's relevant
         for stage in self.stages:
             for diffname in stage.differences:
-                self.lookup_diffname_to_stages[diffname].append(stage["name"])
-                diffidx = self.lookup_difference_name_to_dict[diffname]["idx"]
-                self.lookup_diffidx_to_stages[diffidx].append(stage)
+                try:
+                    self.lookup_diffname_to_stages[diffname].append(stage["name"])
+                    diffidx = self.lookup_difference_name_to_dict[diffname]["idx"]
+                    self.lookup_diffidx_to_stages[diffidx].append(stage)
+                except Exception as ex:
+                    pass
 
     def remap_indexes(self, matches):
         """
