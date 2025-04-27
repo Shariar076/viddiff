@@ -18,7 +18,7 @@ proposer:
   
 retriever:
   multiframe:
-    nframes: 11
+    nframes: 21
     frames_sep_seconds: 1 
   seed: 0
   eval_mode: open

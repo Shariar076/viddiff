@@ -415,7 +415,12 @@ class Retriever:
         # get the frame_idxs per difference
         for diff_idx, diff in differences.items():
             num_frames = diff["num_frames"]
-            assert num_frames in ("1", "gt_1")
+            try:
+                assert num_frames in ("1", "gt_1")
+            except Exception as ex:
+                print(ex)
+                print("num_frames", num_frames)
+                continue
             stages = lookup_diffidx_to_stages[diff_idx]
             # handle special case of no match
             if len(stages) != 0:

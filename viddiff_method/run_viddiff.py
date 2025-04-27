@@ -69,7 +69,7 @@ def main(config, name, seed, split, eval_mode, test_new, subset_mode):
     logging.info(f"Doing eval")
     results = eval_viddiff(dataset,predictions_unmatched=predictions,
                                         eval_mode=args.eval_mode,
-                                        seed=1,#args.seed,
+                                        seed=None,#args.seed,
                                         n_differences=n_differences,
                                         results_dir=args.logging.results_dir,
                                         diffs_already_matched=True,

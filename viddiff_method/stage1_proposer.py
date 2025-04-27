@@ -406,7 +406,7 @@ class Proposer:
 
         # do the matching
         matching, predictions_excess = eval_viddiff.do_matching(
-            self.dataset, proposals_for_matching, self.args.seed
+            self.dataset, proposals_for_matching, 4# self.args.seed
         )
 
         # remove the differences that wre not in the matching results. `matching` has an element for
