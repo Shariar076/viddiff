@@ -305,6 +305,8 @@ def call_gpt_batch(
     n = len(texts)
     if imgs is None:
         imgs = [None] * n
+    else:
+        print("CALLING GPT API WITH IMAGES")
 
     assert n == len(imgs), "texts and imgs must have the same length"
 
@@ -377,6 +379,8 @@ def compute_api_call_cost(
         key = "gpt-4"
     elif "gpt-3.5-turbo" in model:
         key = "gpt-3.5-turbo"
+    elif "Qwen" in model:
+        key = "gpt-4o"
     else:
         return 0
 

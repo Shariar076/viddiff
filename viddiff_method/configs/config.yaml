@@ -18,11 +18,11 @@ proposer:
   
 retriever:
   multiframe:
-    nframes: 21
+    nframes: 11
     frames_sep_seconds: 1 
-  seed: 0
+  seed: 1
   eval_mode: open
-  mode: 0
+  mode: 1
   log_imgs: false
   do_random_retrieval: false
   model_config: 
@@ -30,7 +30,7 @@ retriever:
 
 
 frame_differencer:
-  seed: 0
+  seed: 1
   system_prompt_key: 0
   prompt_key: 0
   prompt_key_multiframe: 0

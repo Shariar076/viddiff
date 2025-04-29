@@ -43,6 +43,7 @@ class Proposer:
         args: BaseContainer,
         args_logging: BaseContainer,
         dataset: Dataset,
+        videos: list,
         n_differences: list[int],
     ):
         """ """
@@ -52,6 +53,8 @@ class Proposer:
 
         # save dataset, and make sure samples are ordered
         self.dataset = dataset
+        self.videos0 = videos[0]
+        self.videos1 = videos[1]
         self.n_differences = n_differences
 
         # logging subdirectory
@@ -113,15 +116,20 @@ class Proposer:
 
         # one query per sample
         batch_texts = []
+        batch_videos = []
         batch_seeds = []
         sample_keys = []
-        for sample, n_diff in zip(self.dataset, self.n_differences):
+        for sample, video0, video1, n_diff in zip(self.dataset, self.videos0, self.videos1, self.n_differences):
             seed = self.args.seed + sample["sample_hash"]
             prompt = template_differences.replace(
                 "{action}", sample["action_description"]
             )
             prompt = prompt.replace("{n_differences}", str(n_diff))
-
+            
+            # video
+            frames_0 = list(video0["video"])
+            frames_1 = list(video1["video"])
+            batch_videos.append(frames_0 + frames_1)
             batch_texts.append(prompt)
             batch_seeds.append(seed)
             sample_keys.append(sample["sample_key"])
@@ -129,7 +137,9 @@ class Proposer:
         # call gpt for differences
         logging.info("GPT call: generating differences")
         llm_batch = openai_api.call_gpt_batch(
-            batch_texts, model=self.args.model, seeds=batch_seeds
+            batch_texts, 
+            batch_videos, 
+            model=self.args.model, seeds=batch_seeds
         )
 
         cost = sum([b[1] for b in llm_batch])
@@ -406,7 +416,7 @@ class Proposer:
 
         # do the matching
         matching, predictions_excess = eval_viddiff.do_matching(
-            self.dataset, proposals_for_matching, 4# self.args.seed
+            self.dataset, proposals_for_matching, 2 # self.args.seed
         )
 
         # remove the differences that wre not in the matching results. `matching` has an element for

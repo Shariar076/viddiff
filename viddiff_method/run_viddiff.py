@@ -50,7 +50,7 @@ def main(config, name, seed, split, eval_mode, test_new, subset_mode):
     n_differences = dataset['n_differences_open_prediction']
 
     logging.info(f"Running LLM proposer")
-    proposer = Proposer(args.proposer, args.logging, dataset, n_differences)
+    proposer = Proposer(args.proposer, args.logging, dataset, videos, n_differences)
     proposals = proposer.generate_proposals()
     # print("\nTotal proposals:", proposals)
 
